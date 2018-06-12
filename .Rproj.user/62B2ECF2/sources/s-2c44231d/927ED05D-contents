@@ -1,0 +1,13 @@
+c_material_parallax <-function(image_source, 
+                               style = "height:300px", 
+                               ...){
+  
+  div(material_parallax(
+    image_source = image_source
+  ),style= style, class="parallax-container", ...)
+  
+}
+
+w_paste0 <- function(text,...){
+  div(paste0("text"), style="color: red", class="shiny-text-output shiny-bound-output", ...)
+}

@@ -1,0 +1,52 @@
+USER <- reactiveValues(Logged = Logged, ID = ID)
+
+observe({
+  if(USER$Logged == FALSE){
+    output$login <- renderUI({
+      material_card(
+        material_text_box(
+          input_id = "usr",
+          label = "Enter Username:",
+          color = "green"
+        ),
+        material_password_box(
+          input_id = "pwd",
+          label = "Enter Password:",
+          color = "green"
+        ),
+        material_button(
+          input_id = "login",
+          label = "Log In",
+          color = "green",
+          depth = 3
+        )
+      )
+    })
+  }else{
+    
+  }
+})
+
+observeEvent(input$login, { 
+  if (USER$Logged == FALSE) {
+    if (!is.null(input$usr) & !is.null(input$pwd)) {
+      if (input$usr == "client" & input$pwd == "client") {
+        USER$Logged <- TRUE
+        USER$ID <- "CLIENT"
+      } else if (input$usr == "garage" & input$pwd == "garage") {
+        USER$Logged <- TRUE
+        USER$ID <- "GARAGE"
+      } else if (input$usr == "police" & input$pwd == "police") {
+        USER$Logged <- TRUE
+        USER$ID <- "POLICE"
+      } else if (input$usr == "td" & input$pwd == "td") {
+        USER$Logged <- TRUE
+        USER$ID <- "TD"
+      } else  {
+        output$loginFail <- renderText({
+          paste0("Wrong Password")
+        })
+      } 
+    }
+  }
+})
