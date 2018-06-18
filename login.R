@@ -24,7 +24,7 @@ observe({
           label = "Log In",
           color = "green"
         ),
-        textOutput("loginFail")
+        uiOutput("loginFail")
       )
     })
   }else{
@@ -48,10 +48,13 @@ observeEvent(input$log, {
     } else if(input$usr == "police" & input$pwd == "police"){
       USER$ID <- "POLICE"
       USER$Logged <- TRUE
+    } else if(input$usr == "fraud" & input$pwd == "fraud"){
+      USER$ID <- "FRAUD"
+      USER$Logged <- TRUE
     }
     else{
-      output$loginFail <- renderText(
-        paste0("Wrong password/ID combination.")
+      output$loginFail <- renderUI(
+        div(h6("Wrong password/ID combination."), style="color:red")
       )
     }
   }

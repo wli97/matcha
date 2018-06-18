@@ -19,13 +19,12 @@ shinyServer <- function(input, output) {
         source('./client.R', local = TRUE)
       } else if(USER$ID == "POLICE") {
         source('./police.R', local = TRUE)
-      } else if(USER$ID == "GARAGE") {
-        source('./police.R', local = TRUE)
+      } else if(USER$ID == "FRAUD") {
+        source('./garage.R', local = TRUE)
       } else if(USER$ID == "BANK") {
         source('./police.R', local = TRUE)
       }
     }
   }) 
-  
-  
+
 }

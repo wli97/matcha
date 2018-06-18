@@ -78,7 +78,7 @@ output$page <- renderUI({
                 label = "Submit",
                 color = "green"
               ),
-              textOutput("submitStatus")
+              uiOutput("submitStatus")
             )
           )
         )),
@@ -149,14 +149,14 @@ output$type <- renderUI({
 observeEvent(input$submit, {
 
   if( input$date=="" | input$desc==""){
-    output$submitStatus <- renderText({
-      paste0("Please fill in all required information.")
+    output$submitStatus <- renderUI({
+      div(h6("Please fill in all required information."), style="color:red")
     })
   }
   else{
     dateFormat = as.Date(input$date,format = '%d %B, %Y')
-    output$submitStatus <- renderText({
-      paste0("Submission Succeeded!")
+    output$submitStatus <- renderUI({
+      div(h6("Submission Succeeded!"), style="color: green")
     })
   }
 })

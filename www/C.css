@@ -1,0 +1,13 @@
+a {
+    color: green;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+h5 {
+  color: green;
+}
+
+element.style {
+  color: red;
+}
