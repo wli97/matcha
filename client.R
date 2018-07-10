@@ -1,3 +1,19 @@
+past <- c()
+current <- c()
+
+update <- function(){
+  past <<- c()
+  current <<- c()
+  i<-0
+  while(TRUE){
+    request <- getRequest(myAddress,i)
+    if(request[5] == 0) break # if no institution associated, it is empty
+    i <- i+1
+    if(request[4] > 6) past <<- c(past, request) # if status is above 6, it is completed
+    else current <<- c(current, request) 
+  }
+}
+update()
 output$page <- renderUI({
   div(
     material_side_nav(
@@ -136,16 +152,6 @@ output$type <- renderUI({
   }
 })
 
-# observe({
-#   if(input$date !=""){
-#     test = as.Date(input$date,format = '%d %B, %Y')
-#     print(test)
-#     print(class(test))
-#   }
-# 
-# })
-# 
-
 observeEvent(input$submit, {
 
   if( input$date=="" | input$desc==""){
@@ -156,7 +162,7 @@ observeEvent(input$submit, {
   else{
     dateFormat = as.Date(input$date,format = '%d %B, %Y')
     output$submitStatus <- renderUI({
-      div(h6("Submission Succeeded!"), style="color: green")
+      div(h6("Submission succeeded! Please allow a moment for update."), style="color: green")
     })
   }
 })

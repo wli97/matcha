@@ -8,7 +8,7 @@ library(shinymaterial)
 
 material_page(
   tags$head(
-
+    tags$script(src="app.js"),
     tags$link(rel = "stylesheet", type = "text/css", href = "C.css")
   ),
   title = "My Blockchain Portal",

@@ -1,5 +1,5 @@
 # USER to keep track of user identity
-USER <- reactiveValues(Logged = Logged, ID = ID)
+USER <- reactiveValues(Logged = Logged, ID = ID, Address = Address)
 
 ##############################
 ## Login UI
@@ -39,12 +39,10 @@ observe({
 observeEvent(input$log, {
   print("logged")
   if(input$usr != "" & input$pwd != ""){
-    output$loginFail <- renderText(
-      paste0("")
-    )
     if(input$usr == "client" & input$pwd == "client"){
       USER$ID <- "CLIENT"
       USER$Logged <- TRUE
+      USER$Address = "0x12321312"
     } else if(input$usr == "police" & input$pwd == "police"){
       USER$ID <- "POLICE"
       USER$Logged <- TRUE
