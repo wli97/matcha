@@ -2,14 +2,13 @@ library(shiny)
 library(shinymaterial)
 library(reticulate)
 
-Logged = FALSE
-ID = NULL;
-Address = 0x0;
+# USER to keep track of user identity
+USER <- reactiveValues(Logged = TRUE, ID = "CLIENT", Address = "0x5e81dA9C90B3ef86B3C2769633bA0946D715a2ad")
 
 shinyServer <- function(input, output, session) {
   
   source('./util.R', local = TRUE)
-  source('./login.R',  local = TRUE)
+  #source('./login.R',  local = TRUE)
   use_condaenv("chain")
   source_python("app.py")
   
@@ -21,8 +20,7 @@ shinyServer <- function(input, output, session) {
   observe({
     if(USER$Logged == TRUE){
       if(USER$ID == "CLIENT"){
-        me <- '0x7Dc3600FE2823a113C5c5439E128ba6d3eA15A41'
-        init(me)
+        init(USER$Address)
         source('./client.R', local = TRUE)
       } else if(USER$ID == "POLICE") {
         source('./police.R', local = TRUE)

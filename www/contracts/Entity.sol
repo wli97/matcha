@@ -8,7 +8,7 @@ contract Entity {
    }
    
    struct Request {
-       address client;
+       uint256 timestamp;
        address police;
        address repair;
        uint8 status;
@@ -22,8 +22,8 @@ contract Entity {
         uint256 index;
     }
     
-   // The address of the player => the user info   
-   // so playerInfo[some_address].amountBet gives the amount
+   /* The address of the player => the user info   
+    so playerInfo[some_address].amountBet gives the amount */
     mapping(address => User) internal userInfo;
     mapping(address => Request[]) internal requests;
     mapping(address => Validation[]) public validations;
@@ -32,8 +32,8 @@ contract Entity {
    event claimRequest(address initiator, uint256 index, address verifier);
    event payment(address initiator, uint256 amount, address receiver);
 
-   // Fallback function in case someone sends ether to the contract so it doesn't 
-   // get lost and to increase the treasury of this contract that will be distributed in each game
+   /* Fallback function in case someone sends ether to the contract so it doesn't 
+   get lost and to increase the treasury of this contract that will be distributed in each game */
     function() public payable {}
 
     constructor() public {
@@ -62,7 +62,7 @@ contract Entity {
         return false;
     }
     
-   // Permissions, msg.sender can be tweaked so future improvement
+   /* Permissions, msg.sender can be tweaked so future improvement */
     function getUser(address user) public view returns(uint8, uint8){
         User storage tmp = userInfo[user];
         User storage me = userInfo[msg.sender];
@@ -73,36 +73,32 @@ contract Entity {
         }
         return (0, 0);
     }
-   
-    function getRequest(address user, uint256 index) public view //FIX
-        returns(address, address, address, uint8, uint8, string, uint256){
-        // Police and Repair -- Bad practice but works here
+    
+    /* Police and Repair,  Bad practice but works here */
+    function getRequest(address user,uint256 index) public view returns(uint256, address, address, uint8, uint8, string, uint256){
         User storage tmp = userInfo[msg.sender];
+        if(index >= requests[user].length) return (0,0,0,12,0,"",0);
         Request storage req = requests[user][index];
         if((tmp.userType== 1 && tmp.instit==userInfo[user].instit) || user==msg.sender) 
-            return (req.client, req.police, req.repair, req.status, req.instit, req.desc, req.payment);
+            return (req.timestamp, req.police, req.repair, req.status, req.instit, req.desc, req.payment);
         else if(tmp.userType == 2){
             if (req.police == msg.sender) 
-                return (req.client, req.police, 0, req.status, req.instit, req.desc, req.payment);
+                return (req.timestamp, req.police, 0, req.status, req.instit, req.desc, req.payment);
         }else if(tmp.userType == 3){
             if (req.repair == msg.sender) 
-                return (req.client,0, req.repair, req.status, 0, req.desc, req.payment);
+                return (req.timestamp,0, req.repair, req.status, 0, req.desc, req.payment);
         }
         return (0,0,0,12,0,"",0);
     }
    
-   
-   // Operations
-   // Functions for transactions and requests
-   
-   // Functions for client address
-    function requestClaim(address garage, uint8 status, string desc) public returns(int256){
+
+    function requestClaim(address garage, uint8 status, string desc) public returns(bool){
         require(userInfo[msg.sender].userType > 2);
         // make sure status flag is not beyond initiation flags
-        if(status > 3 || status <= 0) return -1;
-        else if(userInfo[garage].userType != 3 && status != 1) return -1;
+        if(status > 3 || status <= 0) return false;
+        else if(userInfo[garage].userType != 3 && status != 1) return false;
         requests[msg.sender].push(Request({
-                                client: msg.sender,
+                                timestamp: now,
                                 police: 0,
                                 repair: garage,
                                 status: status,
@@ -115,14 +111,15 @@ contract Entity {
          validations[garage].push(Validation(msg.sender, requests[msg.sender].length - 1));
          emit claimRequest(msg.sender, requests[msg.sender].length - 1, garage);
         }
-        return int256(requests[msg.sender].length - 1);
+        return true;
     }
     
    
-    // Functions for police/repair
-    // 0: init, 1-3: G/P/Both valid required, 4-6: GPB confirmed, 7-9: GPB denied, 10: Paid
+    /* Functions for police/repair
+     0: init, 1-3: G/P/Both valid required, 4-6: GPB confirmed, 7-9: GPB denied, 10: Paid */
     function validate(uint256 index, bool answer, string expl) public returns(bool){
         User storage me = userInfo[msg.sender];
+        if(index >= validations[msg.sender].length) return false;
         Validation storage valid = validations[msg.sender][index];
         Request storage tmp = requests[valid.client][valid.index];
         require(me.userType > 1 && me.userType < 4);
@@ -178,7 +175,7 @@ contract Entity {
         require(me.userType == 1 && me.instit==tmp.instit);
         tmp.desc = concat(tmp.desc, expl);
         if(answer){
-            tmp.client.transfer(msg.value);
+            valid.client.transfer(msg.value);
             tmp.payment = msg.value;  
             tmp.status = 10;    
         }else{
