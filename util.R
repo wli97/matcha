@@ -8,7 +8,7 @@ c_material_parallax <-function(image_source,
   
 }
 
-formatRequest <- function(request){
+formatRequest <- function(request, index){
   request[[1]] <- as.POSIXct(request[[1]], origin="1970-01-01")
   request[[2]] <- "SPVM"
   request[[3]] <- "Garage TD"
@@ -23,6 +23,7 @@ formatRequest <- function(request){
   else if(request[[4]] == 9) request[[4]] <- "Your institution rejected your request."
   else if(request[[4]] == 10) request[[4]] <- "Payment sent from the institution."
   request[[5]] <- "TDI"
+  request[[8]] <- index
   return(request)
 }
 
@@ -31,99 +32,67 @@ request <- function(id,title,info, ... ){
     material_column(
       width = 12,
       material_card(
-        title = title,
-        material_row(
-        material_column(
-          width = 6,
-          tags$br(),
-          material_modal(
-            modal_id = id,
-            button_text = "Detail",
-            button_icon = "folder_special",
-            title = "Request Details",
-            button_depth = 2,
-            button_color = "orange",
-            display_button = TRUE,
-            paste0("Time requested: ", info[[1]]), br(),
-            paste0("Police: ", info[[2]]), br(),
-            paste0("Repair Shop: ", info[[3]]), br(),
-            paste0("Status: ", info[[4]]), br(),
-            paste0("Institution: ", info[[5]]), br(),
-            paste0("Details: ", info[[6]]), br(),
-            paste0("Amount Paid: ", info[[7]])
-          )
+        h5(title),
+        hr(),
+        material_modal(
+          modal_id = id,
+          button_text = "Detail",
+          button_icon = "folder_special",
+          title = "Request Details",
+          hr(),
+          button_depth = 2,
+          button_color = "light-green",
+          display_button = TRUE,
+          paste0("Time requested: ", info[[1]]), br(),
+          paste0("Police: ", info[[2]]), br(),
+          paste0("Repair Shop: ", info[[3]]), br(),
+          paste0("Status: ", info[[4]]), br(),
+          paste0("Institution: ", info[[5]]), br(),
+          paste0("Details: ", info[[6]]), br(),
+          paste0("Amount Paid: ", info[[7]]), br(),
+          ...
         )
       )
     )
-  ),...
-))}
+  )
+)}
 
-# claimText <- renderUI({
-#   paste0("Institution: ", info[[5]])
-#   paste0("Police involvement: ", info[[3]])
-#   paste0("Garage involvement: ", info[[2]])
-#   paste0("Status: ", info[4])
-#   paste0("Progress note: ", info[6])
-#   paste0("Payment: ", info[7])
-# })
-
-claims <- function(id,title, ... ){
+qa <- function(...){
   div(material_row(
     material_column(
       width = 12,
       material_card(
-        title = title,
-        material_row(
-          material_column(
-            width = 6,
-            tags$br(),
-            material_modal(
-              modal_id = id,
-              button_text = "Detail",
-              button_icon = "folder_special",
-              title = "Incident details",
-              button_depth = 2,
-              button_color = "orange",
-              display_button = TRUE,
-              shiny::tags$p("Accident 440O, car crash.")
-            )
-          ),
-          material_column(
-            width = 3,
-            deny_material_button(paste(id,"a"))
-          ),
-          material_column(
-            width = 3,
-            accept_material_button(paste(id,'b'))
-          )
-        )
+        title = "How to approve a request?",
+        tags$br(),
+        shiny::tags$h6("Click on green check button.")
       )
     )
-  ),...
-  )}
-
-accept_material_button <- function(id,...){
-  div(material_button(
-    input_id = id,
-    icon = "check",
-    label = "",
-    depth = 3,
-    color = "green"
-  ), ...)
+  ))
 }
 
-deny_material_button <- function(id,...){
-  div(material_button(
-    input_id = id,
-    label = "",
-    icon = "clear",
-    depth = 3,
-    color = "red"
-  ), ...)
-}
+# accept_material_modal <- function(id,...){
+#   div(material_modal(
+#     input_id = id,
+#     icon = "check",
+#     label = "",
+#     depth = 3,
+#     color = "amber"
+#   ), ...)
+# }
 
 g_actionLink <- function(...){
   div(actionLink(...), style="color: green", class="a")
+}
+
+validCheck <- function(i){
+  div(material_switch(
+    input_id = paste0(i,"a"),
+    label = "I confirm this request being",
+    off_label = "Invalid",
+    on_label = "Valid",
+    initial_value = TRUE,
+    color = "green"
+  ), style="color: green")
 }
 
 w_paste0 <- function(text,...){

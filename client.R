@@ -1,25 +1,28 @@
 ##############################
 ## APP Init for CLIENT
-############################## 
-
+##############################
+autoInvalidate <- reactiveTimer(5000, session)
 past <- vector("list", 1)
 current <- vector("list", 1)
 # update process can be improved with index checker, no need to reload past data
 update <- function(){
   i<-0
+  j<-0
   while(TRUE){
     request <- getRequest(USER$Address,i)
     # if no institution associated, it is empty
     if(request[1] < 1) break 
-    i <- i+1
     if(request[4] > 6){
       # if status is above 6, it is completed
-      request <- formatRequest(request)
-      past[[i]] <<- request
+      request <- formatRequest(request,i)
+      i <- i+1L
+      j <- j+1L
+      past[[j]] <<- request
     } 
     else{
-      request <- formatRequest(request)
-      current[[i]] <<- request
+      request <- formatRequest(request,i)
+      i <- i+1L
+      current[[i-j]] <<- request
     }
   }
 }
@@ -30,6 +33,7 @@ update()
 ############################## 
 
 output$page <- renderUI({
+  autoInvalidate()
   div(
     material_side_nav(
       fixed = TRUE,
@@ -126,11 +130,9 @@ output$page <- renderUI({
       if(is.null(current[[1]])){
         material_row(
           material_column(
-            width = 12,
+            width = 6,
             material_card(
-              title = "Current Claims in Process",
-              tags$br(),
-              shiny::tags$h6("Nothing in process, fortunately!")
+              h5("No claim currently in process, fortunately!")
             )
           )
         )
@@ -150,7 +152,7 @@ output$page <- renderUI({
           material_column(
             width = 3,
             material_button(
-              input_id = "update",
+              input_id = "upd",
               label = "Refresh",
               depth = 5,
               icon = "refresh",
@@ -164,7 +166,7 @@ output$page <- renderUI({
           material_column(
             width = 12,
             material_card(
-              title = "Nothing in records, fortunately!"
+              h5("Nothing in records, fortunately!")
             )
           )
         )
@@ -242,7 +244,6 @@ observeEvent(input$submit, {
   }
 })
 
-observeEvent(input$update, {
-    print("refresh")
+observeEvent(input$upd, {
     update()
 })

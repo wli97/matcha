@@ -7,7 +7,7 @@ def init(me):
     w3 = Web3(Web3.HTTPProvider("http://127.0.0.1:7545", request_kwargs={'timeout': 60}))
     contractAddress = '0x115f75f4db4571c3A49633aA1276181039B4Df41'
     global myAddress
-    myAddress = "0x7Dc3600FE2823a113C5c5439E128ba6d3eA15A41"
+    myAddress = ad(me)
     with open('www/build/contracts/Entity.json','r') as abi_def:
         info = json.load(abi_def)
     global contract 
@@ -34,13 +34,28 @@ def requestClaim(address, status, desc):
     txReceipt = w3.eth.waitForTransactionReceipt(txHash)
     return txReceipt['blockNumber']
   
-def getValid(address):
-    return contract.functions.validations().call()
-  
+def getValid(address, index):
+    try:
+      return contract.functions.validations(ad(address), Web3.toInt(index)).call()
+    except:
+      return 0
+      
 def validate(index, answer, expl):
-    txHash = contract.functions.validate(Web3.toInt(index), answer, expl).transact({'from': w3.eth.accounts[2]})
-    txReceipt = w3.eth.waitForTransactionReceipt(txHash)
-    return txReceipt['blockNumber']
+    try:
+      txHash = contract.functions.validate(Web3.toInt(index), answer, expl).transact({'from': myAddress})
+      txReceipt = w3.eth.waitForTransactionReceipt(txHash)
+      return txReceipt['blockNumber']
+    except:
+      return 0
+      
+def payClaim(index, answer, expl, value):
+    try:
+      txHash = contract.functions.payClaim(Web3.toInt(index), answer, expl).transact({'from': myAddress, 'value':Web3.toInt(value)})
+      txReceipt = w3.eth.waitForTransactionReceipt(txHash)
+      return txReceipt['blockNumber']
+    except:
+      return 0
+      
 
 def ad(address):
     return Web3.toChecksumAddress(Web3.toHex(hexstr=address))
@@ -50,9 +65,6 @@ def usr():
 
 def setU(i):
     w3.eth.defaultAccount = w3.eth.accounts[i]
-    
-def test(address,index):
-    ai = contract.get_function_by_signature('getRequest(address,uint256)')
-    return ai(address,index).call()
+
 
 

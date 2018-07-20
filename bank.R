@@ -1,6 +1,8 @@
 past <- vector("list", 1)
 current <- vector("list", 1)
 # update process can be improved with index checker, no need to reload past data
+
+# ERROR: NOT APPEARING ARRAY. ALSO FORMAT ISSUE WITH PAYCLAIM
 update <- function(){
   i<-0L
   j<-0L
@@ -10,7 +12,7 @@ update <- function(){
     request <- getRequest(valid[[1]], valid[[2]])
     # if no timestamp, it is empty
     if(request[1] < 1) break
-    if(request[4] > 5 || request[4]==4){
+    if(request[4] != 6){
       # if status is above 6, it is completed
       request <- formatRequest(request,i)
       i <- i+1L
@@ -25,6 +27,7 @@ update <- function(){
   }
 }
 update()
+
 output$page <- renderUI({
   div(
     material_side_nav(
@@ -66,17 +69,18 @@ output$page <- renderUI({
       else{
         lapply(1:length(current), function(i) {
           request(paste0("cReq",i), paste0("Request #",i, " on ", current[[i]][[1]]),current[[i]],
-                  material_switch(
-                    input_id = paste0(i,"a"),
-                    label = "I confirm this request being",
-                    off_label = "Invalid",
-                    on_label = "Valid",
-                    initial_value = TRUE,
-                    color = "green"
-                  ),
+                  validCheck(i),
                   material_text_box(
                     input_id = paste0(i, "b"),
                     label = "Optional: append any comment to this request.",
+                    color = "green"
+                  ),
+                  material_number_box(
+                    input_id = paste0(i, "d"),
+                    label = "Amount to pay to client",
+                    initial_value = 0,
+                    max_value = 30000000,
+                    min_value = 0,
                     color = "green"
                   ),
                   g_actionLink(
@@ -121,23 +125,14 @@ output$page <- renderUI({
       c_material_parallax(
         './img/td_bank.jpg'
       ),
-      material_row(
-        material_column(
-          width = 12,
-          material_card(
-            title = "How to approve a request?",
-            tags$br(),
-            shiny::tags$h6("Click on green check button.")
-          )
-        )
-      )
+      qa()
     )
   )
 })
 
 lapply(1:length(current), function(i){
   observeEvent(input[[paste0(i,"c")]], {
-    resp <- validate(current[[i]][[8]], input[[paste0(i,"a")]], paste0("RS ",": ",Sys.time(), input[[paste0(i,"b")]]))
+    resp <- payClaim(current[[i]][[8]], input[[paste0(i,"a")]], paste0("BK ",": ",Sys.time(), input[[paste0(i,"b")]]), input[[paste0(i,"d")]])
     print(resp)
     if(resp == 0){
       output[[paste0("submitStatus",i)]] <- renderUI({
@@ -152,4 +147,3 @@ lapply(1:length(current), function(i){
     
   })
 })
-
