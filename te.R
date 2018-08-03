@@ -1,17 +1,23 @@
 library(reticulate)
-use_condaenv("chain")
+use_virtualenv('chain', required = TRUE)
 source_python("app.py")
-init("0x7Dc3600FE2823a113C5c5439E128ba6d3eA15A41")
+
+x <- "source chain/bin/activate"
+system(x)
+init("b4b0316b7be9664ee5790f5afc1152e5df37eea929810f0bcb1b51118bb80c36")
+test()
+ac[1]
 accounts <- usr()
 accounts[3]
 addUser(accounts[2], 2L)
 addUser(accounts[3], 3L)
-addUser(accounts[4], 4L)
+addUser("0xA204C05534BfFC38cB355CA0cBEE45086bAc2075", 4L)
+inject()
 #setU(as.integer(3))
-getUser(accounts[10])
-stat <- requestClaim(accounts[3], 2, "My Car is broken, need 500$ for repair.")
-val<-getValid(accounts[1],0L)
-getRequest(val[[1]],1)
+getUser("0xA204C05534BfFC38cB355CA0cBEE45086bAc2075")
+stat <- requestClaim(accounts[3], 0,2, "My Car is broken, need 500$ for repair.")
+val<-getValid(accounts[2],0L)
+getRequest(val[[1]],0)
 payClaim(0L, TRUE, "Request valid.", 10L)
 print(5)
 stat

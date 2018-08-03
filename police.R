@@ -1,27 +1,42 @@
-past <- vector("list", 1)
 current <- vector("list", 1)
 # update process can be improved with index checker, no need to reload past data
+# update <- function(){
+#   i<-0L
+#   j<-0L
+#   while(TRUE){
+#     valid <- getValid(USER$Address,i)
+#     if(length(valid) <= 1) break
+#     request <- getRequest(valid[[1]], valid[[2]])
+#     # if no timestamp, it is empty
+#     if(request[1] < 1) break
+#     if(request[4] > 5 || request[4]==4){
+#       # if status is above 6, it is completed
+#       request <- formatRequest(request,i)
+#       i <- i+1L
+#       j <- j+1L
+#       past[[j]] <<- request
+#     } 
+#     else{
+#       request <- formatRequest(request,i)
+#       i <- i+1L
+#       current[[i-j]] <<- request
+#     }
+#   }
+# }
+
 update <- function(){
   i<-0L
-  j<-0L
+  current <<- vector("list", 1)
   while(TRUE){
     valid <- getValid(USER$Address,i)
     if(length(valid) <= 1) break
     request <- getRequest(valid[[1]], valid[[2]])
     # if no timestamp, it is empty
     if(request[1] < 1) break
-    if(request[4] > 5 || request[4]==4){
-      # if status is above 6, it is completed
-      request <- formatRequest(request,i)
-      i <- i+1L
-      j <- j+1L
-      past[[j]] <<- request
-    } 
-    else{
-      request <- formatRequest(request,i)
-      i <- i+1L
-      current[[i-j]] <<- request
-    }
+    # if(request[4] != 6){
+    request <- formatRequest(request,i)
+    i <- i+1L
+    current[[i]] <<- request 
   }
 }
 update()
@@ -45,48 +60,8 @@ output$page <- renderUI({
     
     material_side_nav_tab_content(
       side_nav_tab_id = "current",
-      material_card(
-        material_row(
-          material_column(
-            width = 6,
-            h5("Current Claims")
-          )
-        )
-      ),
-      if(is.null(current[[1]])){
-        material_row(
-          material_column(
-            width = 6,
-            material_card(
-              h5("No claim currently in process, fortunately!")
-            )
-          )
-        )
-      }
-      else{
-        lapply(1:length(current), function(i) {
-          request(paste0("cReq",i), paste0("Request #",i, " on ", current[[i]][[1]]),current[[i]],
-                  material_switch(
-                    input_id = paste0(i,"a"),
-                    label = "I confirm this request being",
-                    off_label = "Invalid",
-                    on_label = "Valid",
-                    initial_value = TRUE,
-                    color = "green"
-                  ),
-                  material_text_box(
-                    input_id = paste0(i, "b"),
-                    label = "Optional: append any comment to this request.",
-                    color = "green"
-                  ),
-                  g_actionLink(
-                    paste0(i,"c"),
-                    label = "Submit",
-                    color = "green"
-                  ),
-                  uiOutput(paste0("submitStatus",i)) )
-        })
-      }
+      searchRequest(current,"Current Requests",FALSE),
+      uiOutput("reqDetail")
     ),
     
     material_side_nav_tab_content(
@@ -95,25 +70,10 @@ output$page <- renderUI({
         material_row(
           material_column(
             width = 6,
-            h5("Past Claims")
+            h5("Set Up Industry Averages")
           )
         )
-      ),
-      if(is.null(past[[1]])){
-        material_row(
-          material_column(
-            width = 6,
-            material_card(
-              h5("No claim in records, fortunately!")
-            )
-          )
-        )
-      }
-      else{
-        lapply(1:length(past), function(i) {
-          request(paste0("pReq",i), paste0("Request #",i, " on ", past[[i]][[1]]),past[[i]])
-        })
-      }
+      )
     ),
     
     material_side_nav_tab_content(
@@ -135,21 +95,71 @@ output$page <- renderUI({
   )
 })
 
-lapply(1:length(current), function(i){
-  observeEvent(input[[paste0(i,"c")]], {
-    resp <- validate(current[[i]][[8]], input[[paste0(i,"a")]], paste0("RS ",": ",Sys.time(), input[[paste0(i,"b")]]))
-    print(resp)
+##############################
+## APP SERVER for POLICE
+##############################
+
+observeEvent(input$det, {
+  if(input$det > 0 && input$req != "NULL"){
+    index <- as.integer(input$req)
+    output$reqDetail <- renderUI({
+      request(current[[index]],material_row(
+        material_column(width=8, material_text_box(
+          input_id = "validA", 
+          label = "Optional: append any justification.",
+          color = "green"
+        )),
+        actionButton("validB", "Valid", icon("check"), 
+                     style="color: #fff; background-color: #00B624; border-color: #2e6da4"),
+        actionButton("validC", "Invalid", icon("times"), 
+                     style="color: #fff; background-color: red; border-color: #2e6da4"),
+        uiOutput("submitStat")
+      ))
+    })
+    output$submitStat <- renderUI({div()})
+  }
+  else{
+    output$reqDetail <- renderUI({div()})
+    output$valid <- renderUI({div()})
+  }
+})
+
+observeEvent(input$req,{
+  output$reqDetail <- renderUI({div()})
+  output$valid <- renderUI({div()})
+  output$submitStat <- renderUI({div()})
+})
+
+observeEvent(input$validB, {
+  if(input$validB < 1){} else{  
+    resp <- validate(current[[as.integer(input$req)]][[9]], TRUE, paste0("PO ",": ",Sys.time(),"-",input$validA))
     if(resp == 0){
-      output[[paste0("submitStatus",i)]] <- renderUI({
+      output$submitStat <- renderUI({
         div(h6("Validation failed, please try again later."), style="color:red")
       })
     }
     else{
-      output[[paste0("submitStatus",i)]] <- renderUI({
-        div(h6("Success."), style="color:green")
-      })
-    }
-    
-  })
+      update_material_text_box(session, "desc", value="")
+      output$reqDetail <- renderUI({div()})
+      update()
+      update_material_dropdown(session,"req",value="NULL",choices=requests(current))
+    }      
+  }
 })
 
+observeEvent(input$validC, {
+  if(input$validC < 1){} else{
+    resp <- validate(current[[as.integer(input$req)]][[9]], FALSE, paste0("PO ",": ",Sys.time(),"-",input$validA))
+    print(resp)
+    if(resp == 0){
+      output$submitStat <- renderUI({
+        div(h6("Validation failed, please try again later."), style="color:red")
+      })
+    }
+    else{
+      update_material_text_box(session, "desc", value="")
+      output$reqDetail <- renderUI({div()})
+      update()
+      update_material_dropdown(session,"req",value="NULL",choices=requests(current))
+    }}      
+})
