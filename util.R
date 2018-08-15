@@ -68,7 +68,7 @@ request <- function(info, ... ){
       paste0("Status: ", info[[5]]), br(),
       paste0("Institution: ", info[[6]]), br(),
       paste0("Details: ", info[[7]]), br(),
-      paste0("Amount Paid: ", info[[8]]), br(),
+      paste0("Amount: ", info[[8]]), br(),
       hr(),br(),
       ...
     )
@@ -94,13 +94,8 @@ searchRequest <- function(current, title, flag){
       ),
       material_column(
         width = 4,
-        material_button(
-          input_id = paste0("det",add),
-          label = "Detail",
-          color = "amber",
-          icon = "folder_special",
-          depth = 4
-        )
+        actionButton(paste0("det",add), "Detail", icon("folder-open"), 
+                     style="color: #fff; background-color: #FFCC00")
       )
     )
   )

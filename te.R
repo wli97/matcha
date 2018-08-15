@@ -1,30 +1,29 @@
 library(reticulate)
-use_virtualenv('chain', required = TRUE)
+use_condaenv("matcha",required=TRUE)
 source_python("app.py")
-
-x <- "source chain/bin/activate"
-system(x)
-init("b4b0316b7be9664ee5790f5afc1152e5df37eea929810f0bcb1b51118bb80c36")
-test()
-ac[1]
+init("963fd9f33a18300d0d2809c4e6870861b98d8d7680e4a3ddbfd34de01d8b3cc4")
+getUser(accounts[4])
 accounts <- usr()
-accounts[3]
-addUser(accounts[2], 2L)
+getRequest(accounts[4],0L)
 addUser(accounts[3], 3L)
+addUser(accounts[2], 2L)
+addUser(accounts[4], 4L)
+
 addUser("0xA204C05534BfFC38cB355CA0cBEE45086bAc2075", 4L)
+test("b4b0316b7be9664ee5790f5afc1152e5df37eea929810f0bcb1b51118bb80c36")
+balance("0xaf5C0994AbEa811eEad96C59e624611FE786F1dd")
 inject()
-#setU(as.integer(3))
+setU()
 getUser("0xA204C05534BfFC38cB355CA0cBEE45086bAc2075")
-stat <- requestClaim(accounts[3], 0,2, "My Car is broken, need 500$ for repair.")
-val<-getValid(accounts[2],0L)
-getRequest(val[[1]],0)
-payClaim(0L, TRUE, "Request valid.", 10L)
+stat <- requestClaim(accounts[3], 0,2, "My Car is broken, need 500$ for repair.",100)
+val<-getValid(accounts[3],0L)
+getRequest(val[[1]],1)
+payClaim(0L, TRUE, "Request valid.", 100L)
 print(5)
 stat
-getRequest(accounts[4],0L)
+getRequest("0xA204C05534BfFC38cB355CA0cBEE45086bAc2075",0L)
 validate(0, TRUE, "miaow pue")
 #transaction does not return value
 typeof(4)
 typeof(as.integer(4))
 typeof(as.hexmode('0x703'))
-

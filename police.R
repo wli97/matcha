@@ -45,10 +45,11 @@ output$page <- renderUI({
     material_side_nav(
       fixed = TRUE,
       image_source = "img/tdb.PNG",
+      tags$div(h5("Police Portal"),align="center"),
       material_side_nav_tabs(
         side_nav_tabs = c(
           "Current Claims" = "current"
-          ,"Past Claims" = "history"
+          ,"Industry Average" = "history"
           ,"Q&A" = "qa"
         ),
         icons = c("monetization_on"
@@ -132,7 +133,7 @@ observeEvent(input$req,{
 
 observeEvent(input$validB, {
   if(input$validB < 1){} else{  
-    resp <- validate(current[[as.integer(input$req)]][[9]], TRUE, paste0("PO ",": ",Sys.time(),"-",input$validA))
+    resp <- validate(current[[as.integer(input$req)]][[9]], TRUE, paste0(" PO ",": ",Sys.time(),"-",input$validA))
     if(resp == 0){
       output$submitStat <- renderUI({
         div(h6("Validation failed, please try again later."), style="color:red")

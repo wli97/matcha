@@ -1,0 +1,12 @@
+name: webApp
+title: webApp
+username:
+account: wli97
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 392644
+bundleId: 1522843
+url: https://wli97.shinyapps.io/webApp/
+when: 1533650112.87486
+asMultiple: FALSE
+asStatic: FALSE

@@ -38,6 +38,7 @@ output$page <- renderUI({
     material_side_nav(
       fixed = TRUE,
       image_source = "img/tdb.PNG",
+      tags$div(h5("Client Portal"),align="center"),
       material_side_nav_tabs(
         side_nav_tabs = c(
           "Current Claims" = "current"
@@ -64,8 +65,8 @@ output$page <- renderUI({
               label = "Type of Claim",
               choices = c(
                 "Automobile" = "auto",
-                "Residential" = "home",
-                "Fraud" = "f"
+                "Residential" = "home"
+                #"Fraud" = "f"
               ),
               color = "green"
             )
@@ -138,7 +139,7 @@ output$page <- renderUI({
     material_side_nav_tab_content(
       side_nav_tab_id = "history",
       searchRequest(past, "My Past Requests",TRUE),
-      uiOutput("reqDetail1")
+      uiOutput("reqDetailP")
     ),
     
     material_side_nav_tab_content(
@@ -196,18 +197,17 @@ observeEvent(input$submit, {
       div(h6("Please use the correct Automobile/House form for this claim type."), style="color:red")
     })
   }
-  # else if(as.Date(input$date, format="%Y-%m-%d") > Sys.time()){
-  #   output$submitStatus <- renderUI({
-  #     div(h6("Accident date cannot be in the future."), style="color:red")
-  #   })
-  # }
+  else if(as.numeric(as.Date(input$date,format = '%d %B, %Y'))*86400 - as.numeric(Sys.time()) > 0){
+    output$submitStatus <- renderUI({
+      div(h6("Accident date cannot be in the future."), style="color:red")
+    })
+  }
   else{
     dateFormat <- as.Date(input$date,format = '%d %B, %Y')
-    print(input$ctype)
     status <- 0
     if(input$police) status <- status+1
     if(input$garage) status <- status+2
-    stat <- requestClaim(accounts[3], as.integer(input$ctype), status, paste0(dateFormat, ": ",input$desc," ","Claim amount: ", input$amount, ". "), input$amount)
+    stat <- requestClaim(accounts[3], as.integer(input$ctype), status, paste0(dateFormat, ": ",input$desc," ","Claim amount: ", input$amount, "."), input$amount)
     while(!is.integer(stat)){
       Sys.sleep(1)
     }

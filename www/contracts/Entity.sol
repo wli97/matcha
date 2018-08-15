@@ -69,8 +69,11 @@ contract Entity {
     function addUser(address user, uint8 userType) public returns(bool) {
         require(userInfo[msg.sender].userType <= 2);
         if( !checkUser(user) ){
-            if(userType == 2) spvm = user;
-            if(userType == 3) userInfo[user].userType = 3;
+            if(userType == 2){ 
+                spvm = user;
+                userInfo[spvm].userType = 2;
+            }
+            else if(userType == 3) userInfo[user].userType = 3;
             else{
                 userInfo[user].userType = userType;
                 userInfo[user].instit = userInfo[msg.sender].instit;
@@ -93,13 +96,7 @@ contract Entity {
    /* Permissions, msg.sender can be tweaked so future improvement */
     function getUser(address user) public view returns(uint8, uint8, uint8){
         User storage tmp = userInfo[user];
-        User storage me = userInfo[msg.sender];
-        if(msg.sender == user) return (tmp.userType, tmp.instit, tmp.status);
-        else if(me.userType == 1 
-            && tmp.instit == me.instit){
-            return (tmp.userType, tmp.instit, tmp.status);
-        }
-        return (0, 0, 0);
+        return (tmp.userType, tmp.instit, tmp.status);
     }
     
     /* Police and Repair,  Bad practice but works here */
@@ -124,10 +121,10 @@ contract Entity {
     function requestClaim(address garage, uint8 claimType, uint8 status, string desc, uint256 paym) public{
         require(userInfo[msg.sender].userType > 2);
         // make sure status flag is not beyond initiation flags
-        if(status > 3 || status <= 0) revert();
-        else if(userInfo[garage].userType != 3 && status <= 1) revert();
-        address police = spvm;
-        if(status == 0 || status == 2) police = 0;
+        if(status > 3 || status < 0) revert();
+        else if(userInfo[garage].userType != 3 && status > 1) revert();
+        if(status == 1 || status == 3) address police = spvm;
+        else police = 0;
         requests[msg.sender].push(Request({
                                 timestamp: now,
                                 police: police,
@@ -140,11 +137,11 @@ contract Entity {
         }));
         emit claimRequest(msg.sender, requests[msg.sender].length - 1, owner);
         if(status == 0) validations[bank[userInfo[msg.sender].instit]].push(Validation(msg.sender, requests[msg.sender].length - 1));
-        if(garage != 0){
+        else if(status > 1){
          validations[garage].push(Validation(msg.sender, requests[msg.sender].length - 1));
          emit claimRequest(msg.sender, requests[msg.sender].length - 1, garage);
         }
-        if(police != 0){
+        if(status != 2 ) {
          validations[spvm].push(Validation(msg.sender, requests[msg.sender].length - 1));
          emit claimRequest(msg.sender, requests[msg.sender].length - 1, spvm);
         }

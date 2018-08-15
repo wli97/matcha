@@ -22,6 +22,7 @@ output$page <- renderUI({
     material_side_nav(
       fixed = TRUE,
       image_source = "img/tdb.PNG",
+      tags$div(h5("Bank Portal"),align="center"),
       material_side_nav_tabs(
         side_nav_tabs = c(
           "Current Claims" = "current"
@@ -60,12 +61,8 @@ output$page <- renderUI({
           ),
           material_column(
             width = 2,
-            material_button(
-              input_id = "getC",
-              label = "Search!",
-              color = "green",
-              depth = 5
-            )
+            actionButton("getC", "Search!", icon("search"), 
+                         style="color: #fff; background-color: #00B624;")
           ),
           material_column(
             width = 3,
@@ -82,12 +79,8 @@ output$page <- renderUI({
           ),
           material_column(
             width = 2,
-            material_button(
-              input_id = "AddC",
-              label = "Add!",
-              color = "amber",
-              depth = 5
-            )
+            actionButton("addC", "Add", icon("user-plus"), 
+                         style="color: #fff; background-color: #FFCC00;")
           )
         )
       ),
@@ -101,16 +94,10 @@ output$page <- renderUI({
       ),
       material_card(
         h5("Fund Money to Matcha"),
-        material_button(
-          input_id = "fund",
-          label = "Fund Matcha!",
-          color = "amber"
-        ),
-        material_button(
-          input_id = "check",
-          label = "Balance",
-          color = "green"
-        ),
+        actionButton("fund", "Fund 1 Ether", icon("dollar-sign"), 
+                     style="color: #fff; background-color: #FFCC00;"),
+        actionButton("check", "Balance", icon("credit-card"), 
+                     style="color: #fff; background-color: #00B624;"),
         br(),
         uiOutput("msg")
       )
@@ -163,7 +150,7 @@ observeEvent(input$req,{
 
 observeEvent(input$validB, {
   if(input$validB < 1){} else{
-    resp <- payClaim(current[[as.integer(input$req)]][[9]], TRUE, paste0("BK ",": ",Sys.time(),"-",input$validA), input$validD)
+    resp <- payClaim(current[[as.integer(input$req)]][[9]], TRUE, paste0(" BK ",": ",Sys.time(),"-",input$validA), as.integer(input$validD))
     if(resp == 0){
       output$submitStat <- renderUI({
         div(h6("Validation failed, please try again later."), style="color:red")
@@ -180,7 +167,7 @@ observeEvent(input$validB, {
 
 observeEvent(input$validC, {
   if(input$validC < 1){} else{
-    resp <- payClaim(current[[as.integer(input$req)]][[9]], FALSE, paste0("BK ",": ",Sys.time(),"-",input$validA),input$validD)
+    resp <- payClaim(current[[as.integer(input$req)]][[9]], FALSE, paste0(" BK ",": ",Sys.time(),"-",input$validA),input$validD)
     if(resp == 0){
       output$submitStat <- renderUI({
         div(h6("Validation failed, please try again later."), style="color:red")
@@ -213,33 +200,52 @@ observeEvent(input$check, {
     div(h5("Amount: ", f, " Ether. "), style="color:green")
   })
 })
+
 observeEvent(input$getC, {
-  client <- getClient(input$CAddress)
-  if( is.null(client) ){
-    output$clientReq <- renderUI({
-      material_card(h5("Client does not exist, or access denied."))
-    })
-  } else{
-    output$clientReq <- renderUI({
-      div(
-        lapply(1:length(client), function(i) {
-          request(client[[i]])
-        })
-      )
-    })
+  print(input$getC)
+  if(input$getC != ""){
+    client <- getClient(input$CAddress)
+    if( is.null(client) ){
+      output$clientReq <- renderUI({
+        material_card(h5("Client has not submitted requests, or access denied."))
+      })
+    } else{
+      output$clientReq <- renderUI({
+        div(
+          lapply(1:length(client), function(i) {
+            request(client[[i]])
+          })
+        )
+      })
+    }
   }
 })
 
-
+observeEvent(input$AddC,{
+  print("hit")
+  if(input$CAddress != ""){
+    status <- addUser(input$CAddress, as.integer(input$Ctype))
+    if(status != 0){
+      output$clientReq <- renderUI({
+        material_card(h5("Client successfully added."))
+      })
+    } else{
+      output$clientReq <- renderUI({
+        material_card(h5("Client not added, verify address."))
+      })  
+    }
+  }
+})
 
 getClient <- function(address){
   client <- vector("list", 1)
-  i <- 0
+  i <- 0L
   while(TRUE){
     request <- getRequest(address, i)
+    print(request)
     if(request[[1]] < 1) break
     request <- formatRequest(request, i)
-    i <- i+1
+    i <- i+1L
     client[[i]] <- request
   }
   if(i == 0) return()

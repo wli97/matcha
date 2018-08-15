@@ -20,6 +20,7 @@ output$page <- renderUI({
     material_side_nav(
       fixed = TRUE,
       image_source = "img/tdb.PNG",
+      tags$div(h5("Repair Portal"),align="center"),
       material_side_nav_tabs(
         side_nav_tabs = c(
           "Client Claims" = "current"
@@ -124,7 +125,7 @@ observeEvent(input$validB, {
 
 observeEvent(input$validC, {
   if(input$validC < 1){} else{
-    resp <- validate(current[[as.integer(input$req)]][[9]], FALSE, paste0("RS ",": ",Sys.time(),"-",input$validA))
+    resp <- validate(current[[as.integer(input$req)]][[9]], FALSE, paste0(" RS ",": ",Sys.time(),"-",input$validA))
     if(resp == 0){
       output$submitStat <- renderUI({
         div(h6("Validation failed, please try again later."), style="color:red")

@@ -11,9 +11,10 @@ material_page(
     #tags$script(src="app.js"),
     tags$link(rel = "stylesheet", type = "text/css", href = "C.css")
   ),
-  title = "Matcha TD",
+  title = "Matcha Insurance Portal",
   nav_bar_color = "green darken-1",
   background_color = "light-green",
+
   uiOutput("login"),
   
   ##############################
