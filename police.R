@@ -40,6 +40,10 @@ update <- function(){
   }
 }
 update()
+
+##############################
+## APP UI for POLICE
+##############################
 output$page <- renderUI({
   div(
     material_side_nav(
@@ -73,7 +77,32 @@ output$page <- renderUI({
             width = 6,
             h5("Set Up Industry Averages")
           )
-        )
+        ),
+        material_dropdown(
+          input_id = "ctype",
+          label = "Choose type of incident",
+          choices = typelist(2),
+          color = "green"
+        ),
+        material_number_box(
+          input_id = "amt",
+          label = "Amount to be set",
+          min_value = 1,
+          max_value = 9999999,
+          initial_value = "",
+          color = "green"
+        ),
+        material_row(
+          material_column(
+            actionButton("AS average", "average", icon("equals"), 
+                         style="color: #fff; background-color: #00B624")
+          ),
+          material_column(
+            actionButton("std", "As standard deviation", icon("less-than"), 
+                         style="color: #fff; background-color: #FFCC00")
+          )
+        ),
+        uiOutput("updateStat")
       )
     ),
     
@@ -151,7 +180,6 @@ observeEvent(input$validB, {
 observeEvent(input$validC, {
   if(input$validC < 1){} else{
     resp <- validate(current[[as.integer(input$req)]][[9]], FALSE, paste0("PO ",": ",Sys.time(),"-",input$validA))
-    print(resp)
     if(resp == 0){
       output$submitStat <- renderUI({
         div(h6("Validation failed, please try again later."), style="color:red")
@@ -163,4 +191,38 @@ observeEvent(input$validC, {
       update()
       update_material_dropdown(session,"req",value="NULL",choices=requests(current))
     }}      
+})
+
+observeEvent(input$average, {
+  if(input$average < 1){} else{
+    resp <- setAvg(as.integer(input$ctype), as.integer(input$amt))
+    if(resp == 0){
+      output$updateStat <- renderUI({
+        div(h6("Value update failed"), style="color:red")
+      })
+    }
+    else{
+      update_material_number_box(session, "amt", value="")
+      output$updateStat <- renderUI({
+        div(h6("New value update successfull"), style="color:green")
+      })
+    }
+  }   
+})
+
+observeEvent(input$std, {
+  if(input$average < 1){} else{
+    resp <- setSd(as.integer(input$ctype), as.integer(input$amt))
+    if(resp == 0){
+      output$updateStat <- renderUI({
+        div(h6("Value update failed"), style="color:red")
+      })
+    }
+    else{
+      update_material_number_box(session, "amt", value="")
+      output$updateStat <- renderUI({
+        div(h6("New value update successfull"), style="color:green")
+      })
+    }
+  }   
 })

@@ -89,12 +89,12 @@ def validate(index, answer, expl):
       return 0
       
 def payClaim(index, answer, expl, value):
-    # try:
-      txHash = contract.functions.payClaim(Web3.toInt(index), answer, expl).transact({'from': myAddress.address, 'value':Web3.toInt(value)})
+    try:
+      txHash = contract.functions.payClaim(Web3.toInt(index), answer, expl).transact({'from': myAddress.address, 'value':Web3.toInt(value*1000)})
       txReceipt = w3.eth.waitForTransactionReceipt(txHash)
       return txReceipt['blockNumber']
-    # except:
-    #   return 0
+    except:
+      return 0
       
 def checkFund():
     try:
@@ -112,6 +112,30 @@ def inject():
       return txReceipt['blockNumber']
     except:
        return 0
+
+def setAvg(ctype, amt):
+    # try:
+      # construct_txn = contract.functions.setAvg(Web3.toInt(ctype), Web3.toInt(amt)).buildTransaction({
+      #   'from': myAddress.address,'nonce': w3.eth.getTransactionCount(myAddress.address)})
+      # signed = myAddress.signTransaction(construct_txn)
+      # txHash = w3.eth.sendRawTransaction(signed.rawTransaction)
+      txHash = contract.functions.setAvg(Web3.toInt(ctype),Web3.toInt(amt)).transact({'from': myAddress.address})
+      txReceipt = w3.eth.waitForTransactionReceipt(txHash)
+      return txReceipt['blockNumber']
+    # except:
+    #   return 0
+
+def setSd(ctype, amt):
+    try:
+      # construct_txn = contract.functions.setSd(Web3.toInt(ctype), Web3.toInt(amt)).buildTransaction({
+      #   'from': myAddress.address,'nonce': w3.eth.getTransactionCount(myAddress.address)})
+      # signed = myAddress.signTransaction(construct_txn)
+      # txHash = w3.eth.sendRawTransaction(signed.rawTransaction)
+      txHash = contract.functions.setSd(Web3.toInt(ctype),Web3.toInt(amt)).transact({'from': myAddress.address})
+      txReceipt = w3.eth.waitForTransactionReceipt(txHash)
+      return txReceipt['blockNumber']
+    except:
+      return 0
 
 def ad(address):
     return Web3.toChecksumAddress(Web3.toHex(hexstr=address))

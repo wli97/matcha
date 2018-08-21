@@ -33,18 +33,26 @@ formatRequest <- function(request, index){
 }
 
 typelist <- function(boo){
-  if(boo){
+  if(boo == TRUE){
     return(c(
       "Other" = 0,
       "House Water Damage" = 3,
       "House Burnt Down/Total Destruction" = 4
     ))
-  }else{
-  return(c(
-    "Other" = 0,
-    "Car Loss/Destruction" = 1,
-    "Car Rear Mirror Damage" = 2
-  ))
+  }else if(boo == FALSE){
+    return(c(
+      "Other" = 0,
+      "Car Loss/Destruction" = 1,
+      "Car Rear Mirror Damage" = 2
+    ))
+  } else{
+    return(c(
+      "Other" = 0,
+      "Car Loss/Destruction" = 1,
+      "Car Rear Mirror Damage" = 2,
+      "House Water Damage" = 3,
+      "House Burnt Down/Total Destruction" = 4
+    ))
   }
 }
 
