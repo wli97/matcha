@@ -43,7 +43,7 @@ def init(me):
 #     txReceipt = w3.eth.waitForTransactionReceipt(txHash)
 #     return txReceipt['blockNumber']
 def addUser(address, userType):
-    try:
+    # try:
       construct_txn = contract.functions.addUser(ad(address),Web3.toInt(userType)).buildTransaction({
         'from': myAddress.address, 'nonce': w3.eth.getTransactionCount(myAddress.address)
       })
@@ -51,8 +51,8 @@ def addUser(address, userType):
       txHash = w3.eth.sendRawTransaction(signed.rawTransaction)
       txReceipt = w3.eth.waitForTransactionReceipt(txHash)
       return txReceipt['blockNumber']  
-    except:
-      return 0
+    # except:
+    #   return 0
   
 def getUser(address):
     return contract.functions.getUser(ad(address)).call()

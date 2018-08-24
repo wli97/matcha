@@ -71,9 +71,9 @@ output$page <- renderUI({
               label = "Type",
               color = "green",
               choices = c(
-                "Client" = 4,
-                "Police" = 2,
-                "Repair" = 3
+                "Client" = 4L,
+                "Police" = 2L,
+                "Repair" = 3L
               )
             )
           ),
@@ -202,16 +202,25 @@ observeEvent(input$check, {
 })
 
 observeEvent(input$getC, {
-  print(input$getC)
   if(input$getC != ""){
     client <- getClient(input$CAddress)
+    userInfo <- getUser(input$CAddress)
+    if(userInfo == 1) userInfo <- "Insurance Company"
+    else if(userInfo == 2) userInfo <- "Police/Watcher"
+    else if(userInfo == 3) userInfo <- "Garage/Repair"
+    else if(userInfo == 4) userInfo <- "Client"
+    else userInfo <- "Access Denied, or Address not recognized"
     if( is.null(client) ){
       output$clientReq <- renderUI({
-        material_card(h5("Client has not submitted requests, or access denied."))
+        material_card(
+          material_row(h5(paste0("Address type: ", userInfo))),
+          material_row(h5("No submitted requests"))
+        )
       })
     } else{
       output$clientReq <- renderUI({
         div(
+          material_row(h5(paste0("Address type: ", userInfo))),
           lapply(1:length(client), function(i) {
             request(client[[i]])
           })
@@ -221,10 +230,11 @@ observeEvent(input$getC, {
   }
 })
 
-observeEvent(input$AddC,{
-  print("hit")
+observeEvent(input$addC,{
   if(input$CAddress != ""){
     status <- addUser(input$CAddress, as.integer(input$Ctype))
+    print(input$CAddress)
+    print(input$Ctype)
     if(status != 0){
       output$clientReq <- renderUI({
         material_card(h5("Client successfully added."))

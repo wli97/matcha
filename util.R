@@ -1,13 +1,4 @@
-c_material_parallax <-function(image_source, 
-                               style = "height:300px", 
-                               ...){
-  
-  div(material_parallax(
-    image_source = image_source
-  ),style= style, class="parallax-container", ...)
-  
-}
-
+# format the request details in humanly readable format
 formatRequest <- function(request, index){
   request[[1]] <- as.POSIXct(request[[1]], origin="1970-01-01")
   request[[2]] <- "SPVM"
@@ -32,6 +23,7 @@ formatRequest <- function(request, index){
   return(request)
 }
 
+# format the type of incident list
 typelist <- function(boo){
   if(boo == TRUE){
     return(c(
@@ -56,6 +48,7 @@ typelist <- function(boo){
   }
 }
 
+# return a list of requests in correct format for display
 requests <- function(cur){
   clist <- vector("list", 1)
   for(i in 1:length(cur)){
@@ -64,6 +57,7 @@ requests <- function(cur){
   return(clist)
 }
 
+# format details of each request
 request <- function(info, ... ){
   div(
     material_card(
@@ -83,6 +77,7 @@ request <- function(info, ... ){
   )  
 }
 
+# search engine with dropdown for requests
 searchRequest <- function(current, title, flag){
   if(flag == TRUE) add <- "P"
   else add <- ""
@@ -109,8 +104,7 @@ searchRequest <- function(current, title, flag){
   )
 }
 
-
-
+# placeholder qa section display
 qa <- function(...){
   div(material_row(
     material_column(
@@ -128,6 +122,15 @@ g_actionLink <- function(...){
   div(actionLink(...), class="a1")
 }
 
+c_material_parallax <-function(image_source, 
+                               style = "height:300px", 
+                               ...){
+  
+  div(material_parallax(
+    image_source = image_source
+  ),style= style, class="parallax-container", ...)
+  
+}
 # validCheck <- function(i){
 #   div(material_switch(
 #     input_id = paste0(i,"a"),
